@@ -3,6 +3,7 @@ package usecase
 import (
 	"codepix/domain/model"
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -47,6 +48,22 @@ func (t *TransactionUseCase) Complete(transactionId string) (*model.Transaction,
 	if err != nil {
 		return nil, err
 	}
+	return transaction, nil
+}
+
+func (t *TransactionUseCase) Confirm(transactionId string) (*model.Transaction, error) {
+	transaction, err := t.TransactionRepository.Find(transactionId)
+	if err == nil {
+		fmt.Println("Transaction not found", transactionId)
+		return nil, err
+	}
+
+	transaction.Status = model.TransactionConfirmed
+	err = t.TransactionRepository.Save(transaction)
+	if err != nil {
+		return nil, err
+	}
+
 	return transaction, nil
 }
 
